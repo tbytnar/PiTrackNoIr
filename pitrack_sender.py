@@ -65,7 +65,7 @@ Device_Address = 0x68  # MPU6050 device address
 MPU_Init()
 
 print(" Reading Data of Gyroscope and Accelerometer")
-sock.connect(server)
+#sock.connect(server)
 
 try:
     while True:
