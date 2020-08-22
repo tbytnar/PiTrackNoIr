@@ -1,6 +1,7 @@
 import smbus  # import SMBus module of I2C
 import socket
 import sys
+from struct import *
 from time import sleep  # import
 
 # Create a TCP/IP socket
@@ -94,7 +95,7 @@ try:
        # reading_string = ''.join(map(str, reading)
 
         print('getting reading')
-        message = b''.join((Ax,Ay,Az,Gx,Gy,Gz))
+        message = pack('ffffff',Ax,Ay,Az,Gx,Gy,Gz)
         print(message)
         print(message.decode())
 
