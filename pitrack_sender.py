@@ -5,7 +5,7 @@ from struct import *
 from time import sleep  # import
 
 # Create a TCP/IP socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Connect the socket to the port where the server is listening
 # Bind the socket to the port
@@ -67,8 +67,6 @@ MPU_Init()
 
 print(" Reading Data of Gyroscope and Accelerometer")
 
-sock.connect(server)
-
 try:
     while True:
         # Read Accelerometer raw value
@@ -95,14 +93,11 @@ try:
 
        # reading_string = ''.join(map(str, reading)
 
-        data = sock.recvfrom(4096)
-
         print('getting reading')
         message = pack('dddddd',Ax,Ay,Az,Gx,Gy,Gz)
         print(message)
 
-        sent = sock.sendto(message, server)
-
+        sock.sendto(message, server)
 
         print(data)
         sleep(0.5)
