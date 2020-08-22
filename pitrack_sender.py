@@ -91,8 +91,10 @@ try:
         #    "\tAx=%.2f g" % Ax, "\tAy=%.2f g" % Ay, "\tAz=%.2f g" % Az)
 
        # reading_string = ''.join(map(str, reading)
-       
-        message = b''.join(Ax,Ay,Az,Gx,Gy,Gz)
+
+        message = b''.join((Ax,Ay,Az,Gx,Gy,Gz))
+        print(message)
+        print(message.decode())
 
         sent = sock.sendto(message, server)
         sleep(1)
