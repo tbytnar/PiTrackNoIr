@@ -66,7 +66,8 @@ Device_Address = 0x68  # MPU6050 device address
 MPU_Init()
 
 print(" Reading Data of Gyroscope and Accelerometer")
-#sock.connect(server)
+
+sock.connect(server)
 
 try:
     while True:
@@ -97,14 +98,14 @@ try:
         data = sock.recvfrom(4096)
 
         print('getting reading')
-        message = pack('ffffff',Ax,Ay,Az,Gx,Gy,Gz)
+        message = pack('dddddd',Ax,Ay,Az,Gx,Gy,Gz)
         print(message)
 
         sent = sock.sendto(message, server)
 
 
         print(data)
-        sleep(1)
+        sleep(0.5)
 
 finally:
     print('closing socket')
