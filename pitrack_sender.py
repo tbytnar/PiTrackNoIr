@@ -94,12 +94,14 @@ try:
 
        # reading_string = ''.join(map(str, reading)
 
+        data = sock.recvfrom(4096)
+
         print('getting reading')
         message = pack('ffffff',Ax,Ay,Az,Gx,Gy,Gz)
         print(message)
 
         sent = sock.sendto(message, server)
-        data = sock.recvfrom(4096)
+
 
         print(data)
         sleep(1)
