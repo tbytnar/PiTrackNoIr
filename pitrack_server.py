@@ -1,5 +1,15 @@
 import smbus  # import SMBus module of I2C
+import socket
+import sys
 from time import sleep  # import
+
+# Create a TCP/IP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Bind the socket to the port
+server_address = ('localhost', 10000)
+print >>sys.stderr, 'starting up on %s port %s' % server_address
+sock.bind(server_address)
 
 # some MPU6050 Registers and their Address
 PWR_MGMT_1 = 0x6B
@@ -53,26 +63,44 @@ MPU_Init()
 
 print(" Reading Data of Gyroscope and Accelerometer")
 
+# Listen for incoming connections
+sock.listen(1)
+
 while True:
-    # Read Accelerometer raw value
-    acc_x = read_raw_data(ACCEL_XOUT_H)
-    acc_y = read_raw_data(ACCEL_YOUT_H)
-    acc_z = read_raw_data(ACCEL_ZOUT_H)
+    # Wait for a connection
+    print >>sys.stderr, 'waiting for a connection'
+    connection, client_address = sock.accept()
 
-    # Read Gyroscope raw value
-    gyro_x = read_raw_data(GYRO_XOUT_H)
-    gyro_y = read_raw_data(GYRO_YOUT_H)
-    gyro_z = read_raw_data(GYRO_ZOUT_H)
+    try:
+        print >>sys.stderr, 'connection from', client_address
 
-    # Full scale range +/- 250 degree/C as per sensitivity scale factor
-    Ax = acc_x / 16384.0
-    Ay = acc_y / 16384.0
-    Az = acc_z / 16384.0
+        # Receive the data in small chunks and retransmit it
+        while True:
+            # Read Accelerometer raw value
+            acc_x = read_raw_data(ACCEL_XOUT_H)
+            acc_y = read_raw_data(ACCEL_YOUT_H)
+            acc_z = read_raw_data(ACCEL_ZOUT_H)
 
-    Gx = gyro_x / 131.0
-    Gy = gyro_y / 131.0
-    Gz = gyro_z / 131.0
+            # Read Gyroscope raw value
+            gyro_x = read_raw_data(GYRO_XOUT_H)
+            gyro_y = read_raw_data(GYRO_YOUT_H)
+            gyro_z = read_raw_data(GYRO_ZOUT_H)
 
-    print("Gx=%.2f" % Gx, u'\u00b0' + "/s", "\tGy=%.2f" % Gy, u'\u00b0' + "/s", "\tGz=%.2f" % Gz, u'\u00b0' + "/s",
-          "\tAx=%.2f g" % Ax, "\tAy=%.2f g" % Ay, "\tAz=%.2f g" % Az)
-    sleep(1)
+            # Full scale range +/- 250 degree/C as per sensitivity scale factor
+            Ax = acc_x / 16384.0
+            Ay = acc_y / 16384.0
+            Az = acc_z / 16384.0
+
+            Gx = gyro_x / 131.0
+            Gy = gyro_y / 131.0
+            Gz = gyro_z / 131.0
+
+            reading = ("Gx=%.2f" % Gx, u'\u00b0' + "/s", "\tGy=%.2f" % Gy, u'\u00b0' + "/s", "\tGz=%.2f" % Gz, u'\u00b0' + "/s",
+                "\tAx=%.2f g" % Ax, "\tAy=%.2f g" % Ay, "\tAz=%.2f g" % Az)
+
+            connection.sendall(reading)
+            sleep(1)
+            
+    finally:
+        # Clean up the connection
+        connection.close()
