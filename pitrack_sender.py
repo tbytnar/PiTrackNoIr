@@ -98,8 +98,6 @@ try:
         print(message)
 
         sock.sendto(message, server)
-
-        print(data)
         sleep(0.5)
 
 finally:
