@@ -99,6 +99,9 @@ try:
         print(message)
 
         sent = sock.sendto(message, server)
+        data = sock.recvfrom(4096)
+
+        print(data)
         sleep(1)
 
 finally:
