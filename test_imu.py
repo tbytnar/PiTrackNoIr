@@ -55,7 +55,7 @@ MPU_Init()
 print(" Reading Data of Gyroscope and Accelerometer")
 
             
-whilte True:            
+while True:            
     # Read Accelerometer raw value
     acc_x = read_raw_data(ACCEL_XOUT_H)
     acc_y = read_raw_data(ACCEL_YOUT_H)
