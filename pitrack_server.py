@@ -101,7 +101,7 @@ while True:
             reading = ("Gx=%.2f" % Gx, u'\u00b0' + "/s", "\tGy=%.2f" % Gy, u'\u00b0' + "/s", "\tGz=%.2f" % Gz, u'\u00b0' + "/s",
                 "\tAx=%.2f g" % Ax, "\tAy=%.2f g" % Ay, "\tAz=%.2f g" % Az)
 
-            connection.sendall(reading)
+            connection.sendall(reading.encode())
             sleep(1)
             
     finally:

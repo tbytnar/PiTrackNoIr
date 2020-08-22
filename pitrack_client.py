@@ -14,7 +14,7 @@ sock.connect(socket_bind)
 
 try:
     data = sock.recv(16)
-    print(data)
+    print(data.decode())
 
 finally:
     print('closing socket')
