@@ -17,5 +17,5 @@ try:
     print(data)
 
 finally:
-    print >>sys.stderr, 'closing socket'
+    print('closing socket')
     sock.close()

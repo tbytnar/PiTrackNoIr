@@ -75,7 +75,7 @@ while True:
     connection, client_address = sock.accept()
 
     try:
-        print('connection from: ' + client_address)
+        print('connection from: ' + client_address[0])
 
         # Receive the data in small chunks and retransmit it
         while True:
