@@ -97,7 +97,6 @@ try:
         print('getting reading')
         message = pack('ffffff',Ax,Ay,Az,Gx,Gy,Gz)
         print(message)
-        print(message.decode())
 
         sent = sock.sendto(message, server)
         sleep(1)
