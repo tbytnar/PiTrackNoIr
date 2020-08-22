@@ -92,6 +92,7 @@ try:
 
        # reading_string = ''.join(map(str, reading)
 
+        print('getting reading')
         message = b''.join((Ax,Ay,Az,Gx,Gy,Gz))
         print(message)
         print(message.decode())
