@@ -12,7 +12,7 @@ server_address = '192.168.1.17'
 port = 4242
 server = (server_address,port)
 print('starting up on ' + server_address + ' port ' + str(port))
-sock.connect(server)
+
 
 # some MPU6050 Registers and their Address
 PWR_MGMT_1 = 0x6B
@@ -65,6 +65,7 @@ Device_Address = 0x68  # MPU6050 device address
 MPU_Init()
 
 print(" Reading Data of Gyroscope and Accelerometer")
+sock.connect(server)
 
 try:
     while True:
