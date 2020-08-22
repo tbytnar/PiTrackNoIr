@@ -6,8 +6,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Connect the socket to the port where the server is listening
 # Bind the socket to the port
-server_address = '192.168.1.63'
-port = 10000
+server_address = 'localhost'
+port = 4242
 socket_bind = (server_address,port)
 print('starting up on ' + server_address + ' port ' + str(port))
 sock.connect(socket_bind)
