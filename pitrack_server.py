@@ -10,7 +10,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Bind the socket to the port
 server_address = 'localhost'
 port = 10000
-print('starting up on ' + server_address + ' port ' + port)
+print('starting up on ' + server_address + ' port ' + str(port))
 sock.bind(server_address)
 
 # some MPU6050 Registers and their Address
