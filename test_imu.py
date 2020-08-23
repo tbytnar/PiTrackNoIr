@@ -2,6 +2,8 @@ import smbus  # import SMBus module of I2C
 import sys
 from time import sleep  # import
 
+RAD_TO_DEG = 180 / 3.14159265358979323846
+
 # some MPU6050 Registers and their Address
 PWR_MGMT_1 = 0x6B
 SMPLRT_DIV = 0x19
@@ -71,9 +73,9 @@ while True:
     Ay = acc_y / 16384.0
     Az = acc_z / 16384.0
 
-    Gx = gyro_x / 131.0
-    Gy = gyro_y / 131.0
-    Gz = gyro_z / 131.0
+    Gx = (gyro_x / 131.0)*RAD_TO_DEG
+    Gy = (gyro_y / 131.0)*RAD_TO_DEG
+    Gz = (gyro_z / 131.0)*RAD_TO_DEG
 
     reading = ("Gx=%.2f" % Gx, u'\u00b0' + "/s", "\tGy=%.2f" % Gy, u'\u00b0' + "/s", "\tGz=%.2f" % Gz, u'\u00b0' + "/s",
         "\tAx=%.2f g" % Ax, "\tAy=%.2f g" % Ay, "\tAz=%.2f g" % Az)

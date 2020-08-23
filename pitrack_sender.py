@@ -1,5 +1,6 @@
-from imu.mpu9250 import MPU9250
+import smbus  # import SMBus module of I2C
 import socket
+import sys
 from struct import *
 from time import sleep  # import
 
@@ -11,31 +12,87 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 server_address = '192.168.1.17'
 port = 4242
 server = (server_address,port)
-print('Connecting to ' + server_address + ' on port ' + str(port))
+print('starting up on ' + server_address + ' port ' + str(port))
+
+RAD_TO_DEG = 180 / 3.14159265358979323846
+
+# some MPU6050 Registers and their Address
+PWR_MGMT_1 = 0x6B
+SMPLRT_DIV = 0x19
+CONFIG = 0x1A
+GYRO_CONFIG = 0x1B
+INT_ENABLE = 0x38
+ACCEL_XOUT_H = 0x3B
+ACCEL_YOUT_H = 0x3D
+ACCEL_ZOUT_H = 0x3F
+GYRO_XOUT_H = 0x43
+GYRO_YOUT_H = 0x45
+GYRO_ZOUT_H = 0x47
 
 
-imu = MPU9250(bus=1, device_addr=0x68)
-print(" Sending Data from Gyroscope and Accelerometer")
- 
+def MPU_Init():
+    # write to sample rate register
+    bus.write_byte_data(Device_Address, SMPLRT_DIV, 7)
+
+    # Write to power management register
+    bus.write_byte_data(Device_Address, PWR_MGMT_1, 1)
+
+    # Write to Configuration register
+    bus.write_byte_data(Device_Address, CONFIG, 0)
+
+    # Write to Gyro configuration register
+    bus.write_byte_data(Device_Address, GYRO_CONFIG, 24)
+
+    # Write to interrupt enable register
+    bus.write_byte_data(Device_Address, INT_ENABLE, 1)
+
+
+def read_raw_data(addr):
+    # Accelero and Gyro value are 16-bit
+    high = bus.read_byte_data(Device_Address, addr)
+    low = bus.read_byte_data(Device_Address, addr + 1)
+
+    # concatenate higher and lower value
+    value = ((high << 8) | low)
+
+    # to get signed value from mpu6050
+    if (value > 32768):
+        value = value - 65536
+    return value
+
+
+bus = smbus.SMBus(1)  # or bus = smbus.SMBus(0) for older version boards
+Device_Address = 0x68  # MPU6050 device address
+
+MPU_Init()
+
+print(" Reading Data of Gyroscope and Accelerometer")
+
 try:
-    scale = 1
+    while True:
+        # Read Accelerometer raw value
+        acc_x = read_raw_data(ACCEL_XOUT_H)
+        acc_y = read_raw_data(ACCEL_YOUT_H)
+        acc_z = read_raw_data(ACCEL_ZOUT_H)
 
-    for count in range(30):
-        # Correction factors involve floating point
-        mag = list(map(lambda x, y : x*y/scale, imu.mag.ixyz, imu.mag_correction))
-        print("Interrupt:", [x/16384 for x in imu.accel.ixyz], [x/131 for x in imu.gyro.ixyz], mag)
-        sleep(0.1)
-        print("Normal:   ", imu.accel.xyz, imu.gyro.xyz, imu.mag.xyz)
-        print()
-        sleep(0.5)
+        # Read Gyroscope raw value
+        gyro_x = read_raw_data(GYRO_XOUT_H)
+        gyro_y = read_raw_data(GYRO_YOUT_H)
+        gyro_z = read_raw_data(GYRO_ZOUT_H)
 
-        Ax = imu.accel.ixyz[0]
-        Ay = imu.accel.ixyz[1]
-        Az = imu.accel.ixyz[2]
+        # Full scale range +/- 250 degree/C as per sensitivity scale factor
+        Ax = acc_x / 16384.0
+        Ay = acc_y / 16384.0
+        Az = acc_z / 16384.0
 
-        Gx = imu.gyro.ixyz[0]
-        Gy = imu.gyro.ixyz[1]
-        Gz = imu.gyro.ixyz[2]
+        Gx = (gyro_x / 131.0)*RAD_TO_DEG
+        Gy = (gyro_y / 131.0)*RAD_TO_DEG
+        Gz = (gyro_z / 131.0)*RAD_TO_DEG
+
+        #reading = ("Gx=%.2f" % Gx, u'\u00b0' + "/s", "\tGy=%.2f" % Gy, u'\u00b0' + "/s", "\tGz=%.2f" % Gz, u'\u00b0' + "/s",
+        #    "\tAx=%.2f g" % Ax, "\tAy=%.2f g" % Ay, "\tAz=%.2f g" % Az)
+
+       # reading_string = ''.join(map(str, reading)
 
         print('getting reading')
         message = pack('dddddd',Ax,Ay,Az,Gx,Gy,Gz)
