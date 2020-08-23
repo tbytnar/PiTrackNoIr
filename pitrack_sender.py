@@ -29,13 +29,13 @@ try:
         print()
         sleep(0.5)
 
-        Ax = imu.accel.ixyz.x
-        Ay = imu.accel.ixyz.y
-        Az = imu.accel.ixyz.z
+        Ax = imu.accel.ixyz[0]
+        Ay = imu.accel.ixyz.[1]
+        Az = imu.accel.ixyz.[2]
 
-        Gx = imu.gyro.ixyz.x
-        Gy = imu.gyro.ixyz.y
-        Gz = imu.gyro.ixyz.z
+        Gx = imu.gyro.ixyz.[0]
+        Gy = imu.gyro.ixyz.[1]
+        Gz = imu.gyro.ixyz.[2]
 
         print('getting reading')
         message = pack('dddddd',Ax,Ay,Az,Gx,Gy,Gz)
