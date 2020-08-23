@@ -37,9 +37,16 @@ THE SOFTWARE.
 # At runtime try to continue returning last good data value. We don't want aircraft
 # crashing. However if the I2C has crashed we're probably stuffed.
 
-from utime import sleep_ms
-from machine import I2C
-from vector3d import Vector3d
+from time import sleep
+# from machine import I2C
+import struct
+
+try:
+    from smbus2 import SMBus
+except:
+    from smbus import SMBus
+
+from .vector3d import Vector3d
 
 
 class MPUException(OSError):
@@ -70,7 +77,7 @@ class MPU6050(object):
     _mpu_addr = (104, 105)  # addresses of MPU9150/MPU6050. There can be two devices
     _chip_id = 104
 
-    def __init__(self, side_str, device_addr=None, transposition=(0, 1, 2), scaling=(1, 1, 1)):
+    def __init__(self, bus, device_addr, transposition=(0, 1, 2), scaling=(1, 1, 1)):
 
         self._accel = Vector3d(transposition, scaling, self._accel_callback)
         self._gyro = Vector3d(transposition, scaling, self._gyro_callback)
@@ -79,28 +86,14 @@ class MPU6050(object):
         self.buf3 = bytearray(3)
         self.buf6 = bytearray(6)
 
-        sleep_ms(200)                           # Ensure PSU and device have settled
-        if isinstance(side_str, str):           # Non-pyb targets may use other than X or Y
-            self._mpu_i2c = I2C(side_str)
-        elif hasattr(side_str, 'readfrom'):     # Soft or hard I2C instance. See issue #3097
-            self._mpu_i2c = side_str
-        else:
-            raise ValueError("Invalid I2C instance")
+        sleep(0.200)                           # Ensure PSU and device have settled
 
-        if device_addr is None:
-            devices = set(self._mpu_i2c.scan())
-            mpus = devices.intersection(set(self._mpu_addr))
-            number_of_mpus = len(mpus)
-            if number_of_mpus == 0:
-                raise MPUException("No MPU's detected")
-            elif number_of_mpus == 1:
-                self.mpu_addr = mpus.pop()
-            else:
-                raise ValueError("Two MPU's detected: must specify a device address")
+        if isinstance(bus, int):
+            self._mpu_i2c = SMBus(bus)
         else:
-            if device_addr not in (0, 1):
-                raise ValueError('Device address must be 0 or 1')
-            self.mpu_addr = self._mpu_addr[device_addr]
+            self._mpu_i2c = bus  # Type: SMBus
+
+        self.mpu_addr = device_addr
 
         self.chip_id                     # Test communication by reading chip_id: throws exception on error
         # Can communicate with chip. Set it up.
@@ -114,15 +107,20 @@ class MPU6050(object):
         '''
         Read bytes to pre-allocated buffer Caller traps OSError.
         '''
-        self._mpu_i2c.readfrom_mem_into(addr, memaddr, buf)
+        data = self._mpu_i2c.read_i2c_block_data(addr, memaddr, len(buf))
+        data_as_bytes = struct.pack(str(len(data))+'B', *data)
+        for i in range(len(data)):
+            buf[i] = data[i]
+        # self._mpu_i2c.readfrom_mem_into(addr, memaddr, buf)
 
     # write to device
     def _write(self, data, memaddr, addr):
         '''
         Perform a memory write. Caller should trap OSError.
         '''
-        self.buf1[0] = data
-        self._mpu_i2c.writeto_mem(addr, memaddr, self.buf1)
+        self._mpu_i2c.write_byte_data(addr, memaddr, data)
+        # self.buf1[0] = data
+        # self._mpu_i2c.writeto_mem(addr, memaddr, self.buf1)
 
     # wake
     def wake(self):

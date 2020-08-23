@@ -25,8 +25,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 '''
 
-from imu import MPU6050, bytes_toint, MPUException
-from vector3d import Vector3d
+from .imu import MPU6050, bytes_toint, MPUException
+from .vector3d import Vector3d
 
 
 class MPU9250(MPU6050):
@@ -42,9 +42,9 @@ class MPU9250(MPU6050):
     _mag_addr = 12          # Magnetometer address
     _chip_id = 113
 
-    def __init__(self, side_str, device_addr=None, transposition=(0, 1, 2), scaling=(1, 1, 1)):
+    def __init__(self, bus, device_addr, transposition=(0, 1, 2), scaling=(1, 1, 1)):
 
-        super().__init__(side_str, device_addr, transposition, scaling)
+        super().__init__(bus, device_addr, transposition, scaling)
         self._mag = Vector3d(transposition, scaling, self._mag_callback)
         self.accel_filter_range = 0             # fast filtered response
         self.gyro_filter_range = 0

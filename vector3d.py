@@ -24,7 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 '''
 
-from utime import sleep_ms
+from time import sleep
 from math import sqrt, degrees, acos, atan2
 
 
@@ -32,7 +32,8 @@ def default_wait():
     '''
     delay of 50 ms
     '''
-    sleep_ms(50)
+    # sleep_ms(50)
+    sleep(0.05)
 
 
 class Vector3d(object):
